@@ -18,6 +18,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: "Testing",
             favicon: "./src/favicon.ico",
+            template: "./src/index.html",
         }),
         new MiniCssExtractPlugin(),
     ],
@@ -33,6 +34,13 @@ module.exports = {
             {
                 test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
                 type: "asset/resource",
+            },
+            {
+                test: /\.(js|jsx)$/,
+                exclude: /nodeModules/,
+                use: {
+                    loader: "babel-loader",
+                },
             },
         ],
     },
