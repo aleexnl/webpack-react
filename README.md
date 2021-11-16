@@ -2,18 +2,32 @@
 
 Simple React app with a simple webpack config made by @aleexnl
 
+## Setup:
+
+Install all dependences with
+
+```shell
+npm install
+```
+
 ## Usage:
 
 Start development server
 
 ```shell
-yarn dev
+npm run dev
+```
+
+Start production server
+
+```shell
+npm start
 ```
 
 Create production build
 
 ```shell
-yarn dev
+npm run build
 ```
 
 ### FAQ
