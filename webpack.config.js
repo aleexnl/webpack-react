@@ -13,7 +13,7 @@ module.exports = {
     devServer: {
         static: "./dist",
     },
-    devtool: "inline-source-map",
+    devtool: "eval",
     plugins: [
         new HtmlWebpackPlugin({
             title: "Testing",
