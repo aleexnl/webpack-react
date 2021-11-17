@@ -2,6 +2,21 @@ import Definitions from "../data/definitions.json";
 import type { bElement } from "../types/index"
 import { OpenRule, CloseRule } from "./classes";
 
+function resolveDefinition(definition: any, element: bElement) {
+    // console.log(definition)
+    return definition.description
+}
+
+async function getElementDefinition(elements: bElement[]) {
+    return await Promise.all(elements.map(async e => {
+        // TODO: Search definition in DB & filter by lang.
+        const definition = Definitions.find(d => d.type == "ELEMENT" && d.idObject1 === e.element_id && d.langId === "ES")
+        // If no definition is found.
+        if (typeof definition === 'undefined') return `No translation found for element with id ${e.element_id}`
+        return resolveDefinition(definition, e)
+    }))
+}
+
 /**
  * Generate open rule elements from rule properties.
  */
@@ -56,15 +71,15 @@ function rulePropertiesToElements<T extends OpenRule | CloseRule>(rule: T): bEle
         return mapCloseRulePropertiesToElement(rule)
     }
     throw new Error("Unexpected Rule type while getting parameters.")
-
-
 }
 
 /**
  * Function used to generate a rule translation.
  */
-export function generateRuleDefinition<T extends OpenRule | CloseRule>(rule: T): string {
+export async function generateRuleDefinition<T extends OpenRule | CloseRule>(rule: T) {
     const ruleParameters = rulePropertiesToElements<T>(rule)
-    console.log(ruleParameters)
-    return `Rule ${rule.id}`;
+    const ruleDefinition = await getElementDefinition(ruleParameters)
+    const elementDefinition = await getElementDefinition(rule.elements)
+
+    return [...ruleDefinition, ...elementDefinition];
 }

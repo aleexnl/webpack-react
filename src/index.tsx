@@ -9,7 +9,7 @@ import { CloseRule, OpenRule } from "./helpers/classes";
 
 
 const App = () => {
-    const [definitions, setDefinitions] = useState<string[]>([])
+    const [ruleDefinitions, setRuleDefinitions] = useState<string[][]>([])
 
     useEffect(() => {
 
@@ -23,9 +23,10 @@ const App = () => {
             // Generate all rules definitions 
             const ruleDefinitions = await Promise.all(mappedRules.map(async (r) => generateRuleDefinition(r)));
 
+            console.log(ruleDefinitions)
             // TODO: Work with rule definitions to generate scenario definitions
 
-            setDefinitions(ruleDefinitions)
+            setRuleDefinitions(ruleDefinitions)
         }
 
         createDefinitions()
@@ -35,9 +36,13 @@ const App = () => {
 
     return <>
         <h1>Hello World!</h1>
-        <ul>
-            {definitions.map((d, i) => <li key={i}>{d}</li>)}
-        </ul>
+        <ol>
+            {ruleDefinitions.map((r, i) => <li key={i}>
+                <ul>
+                    {r.map((d, j) => <li key={j}>{d}</li>)}
+                </ul>
+            </li>)}
+        </ol>
     </>;
 };
 

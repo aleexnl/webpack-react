@@ -1,4 +1,4 @@
-import type { fElement } from "../types";
+import type { bElement } from "../types";
 import type { CloseRuleConstructor, OpenRuleConstructor, RuleConstructor } from "../types/classes";
 
 /**
@@ -25,7 +25,7 @@ export class Rule {
     /**
      * Elements added to the rule in @tradEAsy
      */
-    elements!: fElement[]
+    elements!: bElement[]
     /**
      * Elements added to the rule in @tradEAsy that are in trigger mode
      */
@@ -48,7 +48,8 @@ export class Rule {
         this.number = number
         this.type = type
         this.readingType = readingType
-        this.elements = elements
+        // Map @tradEAsy elements to @optitrade elements
+        this.elements = elements.map(e => { return { element_id: e.id, parameters: e.params.map(p => { return { param_id: p.id, value: p.value } }) } })
         this.triggerCount = triggerCount
         this.active = active
         this.hasErrors = hasErrors
