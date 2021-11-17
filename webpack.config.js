@@ -4,7 +4,10 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 module.exports = {
-    entry: "./src/index.tsx",
+    entry: {
+        index: { import: "./src/index.tsx", dependOn: "shared" },
+        shared: "react",
+    },
     output: {
         filename: "[name].bundle.js",
         path: path.resolve(__dirname, "dist"),
@@ -23,6 +26,7 @@ module.exports = {
         new MiniCssExtractPlugin(),
     ],
     optimization: {
+        runtimeChunk: "single",
         minimizer: [`...`, new CssMinimizerPlugin()],
     },
     module: {
