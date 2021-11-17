@@ -1,10 +1,13 @@
 import Definitions from "../data/definitions.json";
+import { definition } from "../types/definition";
 import type { bElement } from "../types/index"
 import { OpenRule, CloseRule } from "./classes";
 
-function resolveDefinition(definition: any, element: bElement) {
-    // console.log(definition)
-    return definition.description
+const SEARCH_EXP = new RegExp("@*.@")// Will search in every string something like @1@, @VALUE@, etc.
+
+function resolveDefinition(text: string, definition: definition, element: bElement): string {
+    if (text.includes("@") === false) return text // If there are no more @ in description
+    return resolveDefinition(text.replace(SEARCH_EXP, "_"), definition, element)
 }
 
 async function getElementDefinition(elements: bElement[]) {
@@ -13,7 +16,7 @@ async function getElementDefinition(elements: bElement[]) {
         const definition = Definitions.find(d => d.type == "ELEMENT" && d.idObject1 === e.element_id && d.langId === "ES")
         // If no definition is found.
         if (typeof definition === 'undefined') return `No translation found for element with id ${e.element_id}`
-        return resolveDefinition(definition, e)
+        return resolveDefinition(definition.description, definition, e)
     }))
 }
 
