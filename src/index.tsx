@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ReactDom from "react-dom";
 import { generateRuleDefinition } from "./helpers/definition";
 // Styles
-import "./style.css";
+import "./css/style.css";
 // Data
 import Strategy from "./data/strategy.json";
 import { CloseRule, OpenRule } from "./helpers/classes";

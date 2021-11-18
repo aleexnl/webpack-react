@@ -1,4 +1,5 @@
 export interface definition {
+    [key: string]
     id: number
     type: string
     buySell: string
