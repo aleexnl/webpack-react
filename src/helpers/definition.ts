@@ -1,13 +1,43 @@
 import Definitions from "../data/definitions.json";
-import { definition } from "../types/definition";
+import type { definition } from "../types/definition";
 import type { bElement } from "../types/index"
 import { OpenRule, CloseRule } from "./classes";
 
-const SEARCH_EXP = new RegExp("@*.@")// Will search in every string something like @1@, @VALUE@, etc.
+console.log(Definitions)
+
+const SEARCH_EXP = new RegExp("(@[\\S]*@)")// TODO: Improve RegExp ?
+
+function resolveParameter(definitionParameter: string, text: string, definition: definition, element: bElement): string {
+    const definitionParameterValue = definitionParameter.substring(1, definitionParameter.length - 1) // Get the value between the 2 @
+
+    if (definitionParameterValue === "VALUE") {
+        const parameter = element.parameters.find(p => p.param_id === definition.idObject1)
+        if (typeof parameter !== "undefined") {
+            return text.replace(definitionParameter, parameter.value)
+        }
+        throw new Error(`Could not find parameter with ID ${definition.idObject1}`)
+    } else if (parseInt(definitionParameterValue) && isNaN(parseInt(definitionParameterValue)) === false) {
+        const targetDefinition = Definitions.find((d: definition) => d.descriptionId == parseInt(definitionParameterValue))
+        if (typeof targetDefinition !== "undefined") {
+            return text.replace(SEARCH_EXP, resolveDefinition(targetDefinition.description, targetDefinition, element))
+        }
+        console.error(`Could not find definition with ID ${definitionParameterValue}`)
+    }
+
+    return text.replace(SEARCH_EXP, "Otra cosa")
+}
 
 function resolveDefinition(text: string, definition: definition, element: bElement): string {
-    if (text.includes("@") === false) return text // If there are no more @ in description
-    return resolveDefinition(text.replace(SEARCH_EXP, "_"), definition, element)
+    const matches = text.match(SEARCH_EXP)
+    if (matches) {
+        return resolveDefinition(
+            resolveParameter(matches[0], text, definition, element) // Resolve parameter function
+            , definition // Recursive argument
+            , element // Recursive argument
+        )
+    }
+    return text // If there are no more matches
+
 }
 
 async function getElementDefinition(elements: bElement[]) {
