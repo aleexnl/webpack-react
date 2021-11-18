@@ -22,8 +22,6 @@ const App = () => {
 
             // Generate all rules definitions 
             const ruleDefinitions = await Promise.all(mappedRules.map(async (r) => generateRuleDefinition(r)));
-
-            console.log(ruleDefinitions)
             // TODO: Work with rule definitions to generate scenario definitions
 
             setRuleDefinitions(ruleDefinitions)
