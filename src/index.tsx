@@ -44,4 +44,5 @@ const App = () => {
     </>;
 };
 
+// RENDER LINE DO NOT REMOVE !!
 ReactDom.render(<App />, document.getElementById("root"));
