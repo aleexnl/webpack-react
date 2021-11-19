@@ -10,7 +10,7 @@ const SEARCH_EXP = new RegExp("(@[\\S]*@)")// TODO: Improve RegExp ?
  * Return the definition based on its dependencies
  * compared with a configured element.
 */
-function filterDefinitionDependencies(definitions: definition[], element: bElement) {
+function filterDefinitionDependencies(definitions: definition[], element: bElement): definition | undefined {
     const definitionOptions = definitions.map((d) => {
         const definitionOption: { id: number, options: bParameter[] } = { id: d.id, options: [] } // TODO Move type to file
         let lastKey: number = 1
@@ -39,8 +39,6 @@ function filterDefinitionDependencies(definitions: definition[], element: bEleme
     return definitions.find(d => d.id === target?.id)
 
 }
-
-
 
 /**
  * Resolve an @*@ parameter in a definition recursively, 
@@ -78,7 +76,7 @@ function resolveParameter(definitionParameter: string, text: string, definition:
         return text.replace(SEARCH_EXP, "Undefined parameter definition")
     }
 
-    return text.replace(SEARCH_EXP, "Undefined")
+    return text.replace(SEARCH_EXP, "Albarikokes")
 }
 
 /**
@@ -113,66 +111,74 @@ async function getElementDefinition(elements: bElement[]) {
 /**
  * Generate open rule elements from rule properties.
  */
-function mapOpenRulePropertiesToElement(rule: OpenRule): bElement[] {
-    return [{
+function mapOpenRuleToElement(rule: OpenRule): bElement {
+    // Creamos un elemento ficticio para almacenar todos
+    // los parametros en un elemento.
+    return {
         element_id: 46,
         parameters: [
             { value: rule.openBuys, param_id: 100 },
             { value: rule.openSells, param_id: 101 },
             { value: rule.allowSameType, param_id: 102 },
             { value: rule.readingType, param_id: 104 },
-            { value: rule.allowDifferentType, param_id: 209 }
-        ]
-    },
-    {
-        element_id: 8,
-        parameters: [
+            { value: rule.allowDifferentType, param_id: 209 },
             { value: rule.openVolType, param_id: 578 },
             { value: `${rule.volume}`, param_id: 273 },
             { value: `${rule.porcentage}`, param_id: 44 }
         ]
-    }];
+    };
 }
 
 /**
  * Generate close rule elements from rule properties.
  */
-function mapCloseRulePropertiesToElement(rule: CloseRule): bElement[] {
-    return [{
-        element_id: 48,
+function mapCloseRuleToElement(rule: CloseRule): bElement {
+    // Creamos un elemento ficticio para almacenar todos
+    // los parametros en un elemento.
+    return {
+        element_id: -2,
         parameters: [
             { value: rule.closeBuys, param_id: 110 }, // Cerrar Compras
             { value: rule.closeSells, param_id: 111 }, // Cerrar Ventas
-            { value: rule.readingType, param_id: 114 } // Tipo de Lectura
-        ]
-    }, {
-        element_id: 10,
-        parameters: [
+            { value: rule.readingType, param_id: 114 }, // Tipo de Lectura
             { value: rule.closingType, param_id: 415 },
             { value: `${rule.closingVolume}`, param_id: 59 }
         ]
-    }];
+    };
 }
 
 /**
  * Map properties to elements depending on rule type.
  */
-function rulePropertiesToElements<T extends OpenRule | CloseRule>(rule: T): bElement[] {
+function rulePropertiesToElement<T extends OpenRule | CloseRule>(rule: T): bElement {
     if (rule instanceof OpenRule) {
-        return mapOpenRulePropertiesToElement(rule)
+        return mapOpenRuleToElement(rule)
     } else if (rule instanceof CloseRule) {
-        return mapCloseRulePropertiesToElement(rule)
+        return mapCloseRuleToElement(rule)
     }
     throw new Error("Unexpected Rule type while getting parameters.")
 }
 
 /**
+ * Get rule definition from it's parameters &
+ * elements.
+ */
+function getRuleDefinition(type: string, rule: bElement, elements: bElement[]): string {
+    const typeID = type === "open" ? "OPEN_RULE" : "CLOSE_RULE"
+    const targetDefinition = Definitions.find(d => d.type === typeID)
+    if (typeof targetDefinition !== "undefined") {
+        const definition = resolveDefinition(targetDefinition.description, targetDefinition, rule)
+        return definition
+    }
+    return `No definition found for ${type} rule`
+}
+
+/**
  * Function used to generate a rule translation.
  */
-export async function generateRuleDefinition<T extends OpenRule | CloseRule>(rule: T) {
-    const ruleParameters = rulePropertiesToElements<T>(rule)
-    const ruleDefinition = await getElementDefinition(ruleParameters)
-    const elementDefinition = await getElementDefinition(rule.elements)
-
-    return [...ruleDefinition, ...elementDefinition];
+export async function generateRuleDefinition<T extends OpenRule | CloseRule>(rule: T): Promise<string> {
+    const ruleElement = rulePropertiesToElement<T>(rule)
+    const ruleDefinition = getRuleDefinition(rule.type, ruleElement, rule.elements)
+    const elementDefinitions = await getElementDefinition(rule.elements)
+    return ruleDefinition.replace("#ELEMENTSCONDITIONS#", elementDefinitions.join("\n"));
 }
