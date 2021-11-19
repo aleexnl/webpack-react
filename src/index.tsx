@@ -33,7 +33,7 @@ const App = () => {
     }, []);
 
     return <>
-        <h1>Hello World!</h1>
+        <h1>Definición de la Estrategia</h1>
         <ol>
             {ruleDefinitions.map((r, i) => <li key={i}>
                 <ul>

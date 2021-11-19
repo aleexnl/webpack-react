@@ -19,7 +19,6 @@ module.exports = {
     devtool: "eval",
     plugins: [
         new HtmlWebpackPlugin({
-            favicon: "./src/public/favicon.ico",
             template: "./src/public/index.html",
         }),
         new MiniCssExtractPlugin(),
